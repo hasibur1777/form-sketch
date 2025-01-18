@@ -1,0 +1,25 @@
+{
+  "name": "form-sketch",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/hasibur1777/form-sketch.git",
+  "author": "hasibur-rahman",
+  "license": "MIT",
+  "devDependencies": {
+    "dotenv": "^16.4.7",
+    "nodemon": "^3.1.9"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.2.1",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "express-validator": "^7.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "prisma": "^6.2.1"
+  },
+  "scripts": {
+    "start": "nodemon server.js"
+  }
+}
