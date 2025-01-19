@@ -7,11 +7,18 @@ const createTemplate = async (req, res) => {
   await body('name').isString().notEmpty().run(req);
   await body('structure')
     .custom((value) => {
-      if (typeof value !== 'object' || Array.isArray(value)) {
-        throw new Error('Structure must be an object');
+      if (typeof value === 'string') {
+        try {
+          JSON.parse(value);
+        } catch (e) {
+          throw new Error('Structure must be a valid JSON object');
+        }
+      } else if (typeof value !== 'object') {
+        throw new Error('Structure must be a valid JSON object');
       }
       return true;
     })
+    .withMessage('Invalid structure format')
     .run(req);
 
   const errors = validationResult(req);
@@ -22,10 +29,14 @@ const createTemplate = async (req, res) => {
   const { name, structure } = req.body;
 
   try {
+    const parsedStructure =
+      typeof structure === 'string'
+        ? JSON.parse(structure)
+        : structure;
     const template = await prisma.formTemplates.create({
       data: {
         name: name,
-        structure: structure,
+        structure: parsedStructure,
         createdBy: user,
       },
     });

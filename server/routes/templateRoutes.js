@@ -1,10 +1,10 @@
 const express = require('express');
+const { userAuthenticate } = require('../middlewares/userMiddleware');
 const {
   getTemplates,
   createTemplate,
   getAllTemplates,
 } = require('../controllers/templateController');
-const { userAuthenticate } = require('../middlewares/userMiddleware');
 
 const router = express.Router();
 
