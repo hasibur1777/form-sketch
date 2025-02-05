@@ -11,12 +11,14 @@ const userRegister = async (req, res) => {
   if (!name || !email || !password) {
     return res
       .status(400)
-      .json({ message: 'All fields are required.' });
+      .json({ success: false, message: 'All fields are required.' });
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
-    return res.status(400).json({ message: 'Invalid email format.' });
+    return res
+      .status(400)
+      .json({ success: false, message: 'Invalid email format.' });
   }
 
   try {
@@ -26,9 +28,15 @@ const userRegister = async (req, res) => {
     });
     res
       .status(201)
-      .json({ message: 'User registered successfully!', user });
+      .json({
+        success: true,
+        message: 'User registered successfully!',
+        user,
+      });
   } catch (error) {
-    res.status(400).json({ error: 'Email already exists.' });
+    res
+      .status(400)
+      .json({ success: false, message: 'Email already exists.' });
   }
 };
 
@@ -38,12 +46,17 @@ const userLogin = async (req, res) => {
   if (!email || !password) {
     return res
       .status(401)
-      .json({ message: 'Invalid email or password.' });
+      .json({
+        success: false,
+        message: 'Invalid email or password.',
+      });
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
-    return res.status(400).json({ message: 'Invalid email format.' });
+    return res
+      .status(400)
+      .json({ success: false, message: 'Invalid email format.' });
   }
 
   try {
@@ -51,7 +64,10 @@ const userLogin = async (req, res) => {
     if (!user) {
       return res
         .status(401)
-        .json({ message: 'Invalid email or password.' });
+        .json({
+          success: false,
+          message: 'Invalid email or password.',
+        });
     }
 
     const isPasswordValid = await bcrypt.compare(
@@ -61,7 +77,10 @@ const userLogin = async (req, res) => {
     if (!isPasswordValid) {
       return res
         .status(401)
-        .json({ message: 'Invalid email or password.' });
+        .json({
+          success: false,
+          message: 'Invalid email or password.',
+        });
     }
 
     const token = jwt.sign(
@@ -70,11 +89,24 @@ const userLogin = async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    res.json({ message: 'Login successful!', token });
+    res.json({
+      success: true,
+      message: 'Login successful!',
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
   } catch (error) {
     res
       .status(500)
-      .json({ message: 'An error occurred during login.' });
+      .json({
+        success: false,
+        message: 'An error occurred during login.',
+      });
   }
 };
 
@@ -82,7 +114,10 @@ const isAdmin = (req, res, next) => {
   if (req.user.role !== 'admin') {
     return res
       .status(403)
-      .json({ message: 'Access restricted to admins.' });
+      .json({
+        success: false,
+        message: 'Access restricted to admins.',
+      });
   }
   next();
 };
@@ -101,28 +136,37 @@ const getUser = async (req, res, next) => {
     });
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found.' });
+      return res
+        .status(404)
+        .json({ success: false, message: 'User not found.' });
     }
 
     return res.json(user);
   } catch (error) {
-    return res.status(500).json({
-      message: 'An error occurred while fetching the user.',
-    });
+    return res
+      .status(500)
+      .json({
+        success: false,
+        message: 'An error occurred while fetching the user.',
+      });
   }
 };
 
 const userAuthenticate = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token)
-    return res.status(401).json({ message: 'Access denied.' });
+    return res
+      .status(401)
+      .json({ success: false, message: 'Access denied.' });
 
   try {
     const decoded = jwt.verify(token, SECRET);
     req.user = decoded;
     next();
   } catch (error) {
-    res.status(403).json({ message: 'Invalid token.' });
+    res
+      .status(403)
+      .json({ success: false, message: 'Invalid token.' });
   }
 };
 
