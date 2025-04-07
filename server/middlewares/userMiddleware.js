@@ -26,13 +26,11 @@ const userRegister = async (req, res) => {
     const user = await prisma.user.create({
       data: { name, email, password: hashedPassword },
     });
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: 'User registered successfully!',
-        user,
-      });
+    res.status(201).json({
+      success: true,
+      message: 'User registered successfully!',
+      user,
+    });
   } catch (error) {
     res
       .status(400)
@@ -44,12 +42,10 @@ const userLogin = async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res
-      .status(401)
-      .json({
-        success: false,
-        message: 'Invalid email or password.',
-      });
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid email or password.',
+    });
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -62,12 +58,10 @@ const userLogin = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      return res
-        .status(401)
-        .json({
-          success: false,
-          message: 'Invalid email or password.',
-        });
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password.',
+      });
     }
 
     const isPasswordValid = await bcrypt.compare(
@@ -75,12 +69,10 @@ const userLogin = async (req, res) => {
       user.password
     );
     if (!isPasswordValid) {
-      return res
-        .status(401)
-        .json({
-          success: false,
-          message: 'Invalid email or password.',
-        });
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password.',
+      });
     }
 
     const token = jwt.sign(
@@ -101,23 +93,19 @@ const userLogin = async (req, res) => {
       },
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: 'An error occurred during login.',
-      });
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred during login.',
+    });
   }
 };
 
 const isAdmin = (req, res, next) => {
   if (req.user.role !== 'admin') {
-    return res
-      .status(403)
-      .json({
-        success: false,
-        message: 'Access restricted to admins.',
-      });
+    return res.status(403).json({
+      success: false,
+      message: 'Access restricted to admins.',
+    });
   }
   next();
 };
@@ -143,12 +131,10 @@ const getUser = async (req, res, next) => {
 
     return res.json(user);
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: 'An error occurred while fetching the user.',
-      });
+    return res.status(500).json({
+      success: false,
+      message: 'An error occurred while fetching the user.',
+    });
   }
 };
 

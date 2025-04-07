@@ -30,11 +30,12 @@ const Login = () => {
 
     try {
       const response = await login({ email, password });
-      if (response?.data?.success && response?.data?.token) {
+
+      if (response?.data?.token) {
         localStorage.setItem('token', response.data.token);
         navigate('/home');
       } else {
-        setError(response.message || 'Invalid credentials.');
+        setError(response?.data?.message || 'Invalid credentials.');
       }
     } catch (err) {
       setError(

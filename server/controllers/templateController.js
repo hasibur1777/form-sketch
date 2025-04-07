@@ -82,8 +82,50 @@ const getTemplates = async (req, res) => {
   }
 };
 
+const getTemplateResponses = async (req, res) => {
+  const { templateID } = req.params;
+  const id = parseInt(templateID);
+  if (isNaN(id)) {
+    return res
+      .status(400)
+      .json({ error: 'Template ID must be a number' });
+  }
+  try {
+    const template = await prisma.formTemplates.findUnique({
+      where: { id },
+      select: {
+        name: true,
+      },
+    });
+
+    if (!template) {
+      return res.status(404).json({ error: 'Template not found' });
+    }
+
+    const responses = await prisma.formResponses.findMany({
+      where: { template_id: id },
+    });
+
+    if (!responses || responses.length === 0) {
+      return res
+        .status(404)
+        .json({ error: 'No responses found for this template' });
+    }
+
+    res.status(200).json({
+      templateName: template.name,
+      responses,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: 'Failed to fetch responses', message: error });
+  }
+};
+
 module.exports = {
   createTemplate,
   getTemplates,
   getAllTemplates,
+  getTemplateResponses,
 };

@@ -25,7 +25,7 @@ const createResponse = async (req, res) => {
     const response = await prisma.formResponses.create({
       data: {
         template_id: parseInt(template_id),
-        response_data: JSON.stringify(response_data),
+        response_data: response_data,
         createdBy: user,
       },
     });

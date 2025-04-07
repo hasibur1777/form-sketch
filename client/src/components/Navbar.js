@@ -65,7 +65,15 @@ const Navbar = () => {
             component="div"
             sx={{ flexGrow: 1 }}
           >
-            My App
+            <Link
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+              }}
+              to="/home"
+            >
+              My App
+            </Link>
           </Typography>
           <Box sx={{ display: { xs: 'none', sm: 'flex' } }}>
             {' '}

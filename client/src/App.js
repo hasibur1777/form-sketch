@@ -1,11 +1,14 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import jwtDecode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import CreateTemplate from './components/CreateTemplate';
+import FillupTemplate from './components/FillupTemplate';
+import ViewResponses from './components/ViewResponses';
 
 const ProtectedRoute = ({ element, redirectTo }) => {
   const token = localStorage.getItem('token');
@@ -52,6 +55,34 @@ const App = () => {
             />
           }
         />
+        <Route
+          path="/create-template"
+          element={
+            <ProtectedRoute
+              element={<CreateTemplate />}
+              redirectTo="/login"
+            />
+          }
+        />
+        <Route
+          path="/fillup-template/:id"
+          element={
+            <ProtectedRoute
+              element={<FillupTemplate />}
+              redirectTo="/login"
+            />
+          }
+        />
+        <Route
+          path="/template/:id/responses"
+          element={
+            <ProtectedRoute
+              element={<ViewResponses />}
+              redirectTo="/login"
+            />
+          }
+        />
+
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>
