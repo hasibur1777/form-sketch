@@ -28,6 +28,7 @@ CREATE TABLE `FormResponses` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `template_id` INTEGER NOT NULL,
     `response_data` JSON NOT NULL,
+    `q_structure` JSON NOT NULL,
     `createdBy` INTEGER NOT NULL,
     `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),

@@ -4,32 +4,17 @@ import { fetchTemplateResponses } from '../services/allAPI';
 
 const ViewResponses = () => {
   const { id } = useParams();
-  const [responses, setResponses] = useState([]);
+  const [mergedFields, setMergedFields] = useState([]);
   const [templateName, setTemplateName] = useState('');
-  const [tableHeaders, setTableHeaders] = useState([]);
+  const [responsesCount, setResponsesCount] = useState(0);
 
   useEffect(() => {
     const fetchResponses = async () => {
       try {
         const res = await fetchTemplateResponses(id);
-
-        const parsedResponses = res.data.responses.map(
-          (response) => ({
-            ...response,
-            response_data: response.response_data,
-          })
-        );
-        setResponses(parsedResponses);
+        setMergedFields(res.data.mergedFields || []);
         setTemplateName(res.data?.templateName || '');
-
-        // Dynamically collect table headers
-        const headers = new Set();
-        parsedResponses.forEach((response) => {
-          Object.keys(response.response_data).forEach((key) => {
-            headers.add(key);
-          });
-        });
-        setTableHeaders(Array.from(headers));
+        setResponsesCount(res.data?.responsesCount || 0);
       } catch (error) {
         alert(
           error.response?.data?.error || 'Error fetching responses'
@@ -40,40 +25,74 @@ const ViewResponses = () => {
     fetchResponses();
   }, [id]);
 
-  if (!responses.length) {
+  if (!mergedFields.length) {
     return <div>Loading or no responses available...</div>;
   }
 
+  // Build table header from mergedFields labels
+  const headers = mergedFields.map((f) => f.label);
+  const rowCount = responsesCount;
+
   return (
-    <div>
-      <h1>Responses for "{templateName}"</h1>
+    <div style={{ padding: '20px' }}>
+      <h1 style={{ marginBottom: '20px' }}>
+        Responses for{' '}
+        <span style={{ color: '#2c3e50' }}>{templateName}</span>
+      </h1>
+
       <table
-        border="1"
-        style={{ borderCollapse: 'collapse', width: '100%' }}
+        style={{
+          width: '100%',
+          borderCollapse: 'collapse',
+          border: '1px solid #ddd',
+          fontFamily: 'Arial, sans-serif',
+        }}
       >
         <thead>
-          <tr>
-            {tableHeaders.map((header, index) => (
-              <th key={index}>{header}</th>
+          <tr style={{ backgroundColor: '#f4f6f8' }}>
+            {headers.map((header, idx) => (
+              <th
+                key={idx}
+                style={{
+                  padding: '10px',
+                  border: '1px solid #ddd',
+                  textAlign: 'left',
+                  fontWeight: 'bold',
+                }}
+              >
+                {header}
+              </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {responses.map((response, index) => (
-            <tr key={index}>
-              {tableHeaders.map((header, idx) => {
-                const value = response.response_data[header];
-                // Handle nested object values (e.g., chk2)
+          {Array.from({ length: rowCount }).map((_, rowIdx) => (
+            <tr
+              key={rowIdx}
+              style={{
+                backgroundColor: rowIdx % 2 ? '#fafafa' : 'white',
+              }}
+            >
+              {mergedFields.map((field, colIdx) => {
+                let value = field.values[rowIdx];
+
+                // Handle checkbox/objects nicely
+                if (typeof value === 'object' && value !== null) {
+                  value = Object.entries(value)
+                    .filter(([_, v]) => v)
+                    .map(([k]) => k)
+                    .join(', ');
+                }
+
                 return (
-                  <td key={idx}>
-                    {typeof value === 'object' && value !== null
-                      ? Object.entries(value)
-                          .map(
-                            ([key, val]) =>
-                              `${key}: ${val ? 'Yes' : 'No'}`
-                          )
-                          .join(', ')
-                      : value}
+                  <td
+                    key={colIdx}
+                    style={{
+                      padding: '8px',
+                      border: '1px solid #ddd',
+                    }}
+                  >
+                    {value || '-'}
                   </td>
                 );
               })}

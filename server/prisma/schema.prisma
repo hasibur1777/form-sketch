@@ -19,7 +19,7 @@ model User {
   name     String   @db.VarChar(255)
   email    String   @unique
   password String
-  role     String   @default("user") // 'user' or 'admin'
+  role     String   @default("user")
   createdAt DateTime @default(now())
 }
 
@@ -27,7 +27,7 @@ model User {
 model FormTemplates {
   id              Int      @id @default(autoincrement())
   name            String   @db.VarChar(255)
-  structure   Json     @default("{}")
+  structure     Json   @default("{}")
   createdBy       Int
   updatedAt       DateTime @default(now())
   createdAt       DateTime @default(now())
@@ -37,7 +37,8 @@ model FormTemplates {
 model FormResponses {
   id              Int      @id @default(autoincrement())
   template_id     Int
-  response_data   Json     @default("{}")
+  response_data     Json   @default("{}")
+  q_structure     Json   @default("{}")
   createdBy       Int
   updatedAt       DateTime @default(now())
   createdAt       DateTime @default(now())

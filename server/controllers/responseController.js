@@ -22,10 +22,19 @@ const createResponse = async (req, res) => {
   const { template_id, response_data } = req.body;
 
   try {
+    const template = await prisma.formTemplates.findUnique({
+      where: { id: parseInt(template_id) },
+    });
+
+    if (!template) {
+      return res.status(404).json({ error: 'Template not found' });
+    }
+
     const response = await prisma.formResponses.create({
       data: {
         template_id: parseInt(template_id),
         response_data: response_data,
+        q_structure: template.structure,
         createdBy: user,
       },
     });

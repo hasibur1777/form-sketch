@@ -1,24 +1,36 @@
 import React, { useState } from 'react';
 import { createTemplate } from '../services/allAPI';
+import {
+  Box,
+  FormControl,
+  TextField,
+  Button,
+  MenuItem,
+} from '@mui/material';
 
 const CreateTemplate = () => {
   const [name, setName] = useState('');
   const [fields, setFields] = useState([]);
   const [fieldDetails, setFieldDetails] = useState({
-    name: '',
     label: '',
     type: 'text', // Default field type
     options: '', // For dropdown and checkbox
   });
 
+  const generateFieldId = () => {
+    // Get the next ID based on fields length + 1
+    const nextId = fields.length + 1;
+    return `field_${nextId}`;
+  };
+
   const addField = () => {
-    if (!fieldDetails.name || !fieldDetails.label) {
-      alert('Field Name and Label are required!');
+    if (!fieldDetails.label) {
+      alert('Field Label is required!');
       return;
     }
 
     const newField = {
-      name: fieldDetails.name,
+      id: generateFieldId(),
       label: fieldDetails.label,
       type: fieldDetails.type,
     };
@@ -35,7 +47,6 @@ const CreateTemplate = () => {
 
     setFields([...fields, newField]);
     setFieldDetails({
-      name: '',
       label: '',
       type: 'text',
       options: '',
@@ -58,97 +69,126 @@ const CreateTemplate = () => {
   };
 
   return (
-    <div>
-      <h2>Create New Template</h2>
-      <form onSubmit={handleSubmit}>
-        {/* Template Name */}
-        <input
-          type="text"
-          placeholder="Template Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-
-        {/* Add Fields */}
-        <div>
-          <h3>Add Field</h3>
-          <input
-            type="text"
-            placeholder="Field Short Code (unique identifier)"
-            value={fieldDetails.name}
-            onChange={(e) =>
-              setFieldDetails({
-                ...fieldDetails,
-                name: e.target.value,
-              })
-            }
-            required
-          />
-          <input
-            type="text"
-            placeholder="Field Name (display name)"
-            value={fieldDetails.label}
-            onChange={(e) =>
-              setFieldDetails({
-                ...fieldDetails,
-                label: e.target.value,
-              })
-            }
-            required
-          />
-          <select
-            value={fieldDetails.type}
-            onChange={(e) =>
-              setFieldDetails({
-                ...fieldDetails,
-                type: e.target.value,
-              })
-            }
-          >
-            <option value="text">Text</option>
-            <option value="email">Email</option>
-            <option value="number">Number</option>
-            <option value="textarea">Text Area</option>
-            <option value="dropdown">Dropdown</option>
-            <option value="checkbox">Checkbox</option>
-            <option value="yesno">Yes/No</option>
-          </select>
-          {['dropdown', 'checkbox'].includes(fieldDetails.type) && (
-            <input
+    <Box
+      sx={{
+        maxWidth: 640,
+        margin: 'auto',
+        backgroundColor: 'white',
+        padding: 4,
+        boxShadow: 3,
+        borderRadius: 2,
+        marginTop: 2,
+      }}
+    >
+      <Box
+        sx={{
+          marginLeft: 5,
+        }}
+      >
+        <h2>Create New Template</h2>
+        <form onSubmit={handleSubmit}>
+          <FormControl>
+            <TextField
+              label="Template Name"
               type="text"
-              placeholder="Options (comma-separated)"
-              value={fieldDetails.options}
-              onChange={(e) =>
-                setFieldDetails({
-                  ...fieldDetails,
-                  options: e.target.value,
-                })
-              }
+              fullWidth
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              variant="standard"
+              required
             />
-          )}
-          <button type="button" onClick={addField}>
-            Add Field
-          </button>
-        </div>
 
-        {/* Field Preview */}
-        <h3>Field Preview</h3>
-        <ul>
-          {fields.map((field, index) => (
-            <li key={index}>
-              <strong>{field.label}</strong> ({field.type})
-              {field.options && (
-                <span> - Options: {field.options.join(', ')}</span>
+            <div>
+              <h3>Add Field</h3>
+
+              <TextField
+                label="Field Name (display name)"
+                type="text"
+                fullWidth
+                value={fieldDetails.label}
+                onChange={(e) =>
+                  setFieldDetails({
+                    ...fieldDetails,
+                    label: e.target.value,
+                  })
+                }
+                variant="standard"
+                required
+              />
+
+              <TextField
+                sx={{ marginTop: 1, marginBottom: 1 }}
+                select
+                label="Type"
+                defaultValue=""
+                value={fieldDetails.type}
+                onChange={(e) =>
+                  setFieldDetails({
+                    ...fieldDetails,
+                    type: e.target.value,
+                  })
+                }
+              >
+                <MenuItem value={'text'}>Text</MenuItem>
+                <MenuItem value={'email'}>Email</MenuItem>
+                <MenuItem value={'number'}>Number</MenuItem>
+                <MenuItem value={'textarea'}>Text Area</MenuItem>
+                <MenuItem value={'dropdown'}>Dropdown</MenuItem>
+                <MenuItem value={'checkbox'}>Checkbox</MenuItem>
+                <MenuItem value={'yesno'}>Yes/No</MenuItem>
+              </TextField>
+
+              {['dropdown', 'checkbox'].includes(
+                fieldDetails.type
+              ) && (
+                <TextField
+                  label="Options (comma-separated)"
+                  type="text"
+                  fullWidth
+                  value={fieldDetails.options}
+                  onChange={(e) =>
+                    setFieldDetails({
+                      ...fieldDetails,
+                      options: e.target.value,
+                    })
+                  }
+                  variant="standard"
+                />
               )}
-            </li>
-          ))}
-        </ul>
 
-        {/* Submit Template */}
-        <button type="submit">Create Template</button>
-      </form>
-    </div>
+              <br></br>
+              <Button
+                variant="contained"
+                type="button"
+                onClick={addField}
+                sx={{ marginTop: 1 }}
+              >
+                Add Field
+              </Button>
+            </div>
+
+            <h3>Field Preview</h3>
+            <ul>
+              {fields.map((field, index) => (
+                <li key={index}>
+                  <strong>{field.label}</strong> ({field.type})
+                  {field.options && (
+                    <span>
+                      {' '}
+                      - Options: {field.options.join(', ')}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+
+            <Button variant="contained" type="submit" color="success">
+              Create Template
+            </Button>
+          </FormControl>
+        </form>
+      </Box>
+    </Box>
   );
 };
 

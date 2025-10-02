@@ -4,6 +4,19 @@ import {
   fetchTemplateById,
   submitResponse,
 } from '../services/allAPI';
+import {
+  Box,
+  FormControl,
+  TextField,
+  MenuItem,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
+  FormLabel,
+  Radio,
+  RadioGroup,
+  Button,
+} from '@mui/material';
 
 const FillupTemplate = () => {
   const { id } = useParams();
@@ -45,122 +58,144 @@ const FillupTemplate = () => {
   const fields = parsedStructure.fields || [];
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>{template.name}</h2>
-      {fields.map((field) => (
-        <div key={field.name} style={{ marginBottom: '20px' }}>
-          <label>{field.label}</label>
-          {field.type === 'text' && (
-            <input
-              type="text"
-              placeholder={field.placeholder || ''}
-              value={formData[field.name] || ''}
-              onChange={(e) =>
-                handleChange(field.name, e.target.value)
-              }
-              required
-            />
-          )}
-          {field.type === 'email' && (
-            <input
-              type="email"
-              placeholder={field.placeholder || ''}
-              value={formData[field.name] || ''}
-              onChange={(e) =>
-                handleChange(field.name, e.target.value)
-              }
-              required
-            />
-          )}
-          {field.type === 'textarea' && (
-            <textarea
-              placeholder={field.placeholder || ''}
-              value={formData[field.name] || ''}
-              onChange={(e) =>
-                handleChange(field.name, e.target.value)
-              }
-              required
-            ></textarea>
-          )}
-          {field.type === 'number' && (
-            <input
-              type="number"
-              value={formData[field.name] || ''}
-              onChange={(e) =>
-                handleChange(field.name, e.target.value)
-              }
-              required
-            />
-          )}
-          {field.type === 'dropdown' && (
-            <select
-              value={formData[field.name] || ''}
-              onChange={(e) =>
-                handleChange(field.name, e.target.value)
-              }
-              defaultValue={field.default || ''}
-            >
-              {field.options.map((option, index) => (
-                <option key={index} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          )}
-          {field.type === 'checkbox' &&
-            field.options.map((option, index) => (
-              <div key={index}>
-                <input
-                  type="checkbox"
-                  id={`${field.name}_${index}`}
-                  checked={formData[field.name]?.[option] || false}
-                  value={option}
+    <Box
+      sx={{
+        maxWidth: 640,
+        margin: 'auto',
+        backgroundColor: 'white',
+        padding: 4,
+        boxShadow: 3,
+        borderRadius: 2,
+        marginTop: 2,
+      }}
+    >
+      <form onSubmit={handleSubmit}>
+        <FormControl>
+          <h2>{template.name}</h2>
+          {fields.map((field) => (
+            <FormGroup key={field.id}>
+              {/* <label>{field.label}</label> */}
+              {(field.type === 'text' ||
+                field.type === 'email' ||
+                field.type === 'number') && (
+                <TextField
+                  label={field.label}
+                  type={field.type}
+                  fullWidth
+                  margin="normal"
+                  value={formData[field.id] || ''}
                   onChange={(e) =>
-                    handleChange(field.name, {
-                      ...formData[field.name],
-                      [option]: e.target.checked,
-                    })
+                    handleChange(field.id, e.target.value)
                   }
-                />
-                <label htmlFor={`${field.name}_${index}`}>
-                  {option}
-                </label>
-              </div>
-            ))}
-          {field.type === 'yesno' && (
-            <div>
-              <label>
-                <input
-                  type="radio"
-                  name={field.name}
-                  value="yes"
-                  checked={formData[field.name] === 'yes'}
-                  onChange={(e) =>
-                    handleChange(field.name, e.target.value)
-                  }
+                  variant="standard"
                   required
                 />
-                Yes
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name={field.name}
-                  value="no"
-                  checked={formData[field.name] === 'no'}
+              )}
+              {field.type === 'textarea' && (
+                <TextField
+                  label={field.label}
+                  type={field.type}
+                  fullWidth
+                  margin="normal"
+                  value={formData[field.id] || ''}
                   onChange={(e) =>
-                    handleChange(field.name, e.target.value)
+                    handleChange(field.id, e.target.value)
                   }
+                  multiline
+                  rows={4}
                   required
                 />
-                No
-              </label>
-            </div>
-          )}
-        </div>
-      ))}
-      <button type="submit">Submit</button>
-    </form>
+              )}
+              {field.type === 'dropdown' && (
+                <TextField
+                  select
+                  label={field.label}
+                  defaultValue=""
+                  // helperText="Please select"
+                  value={formData[field.id] || ''}
+                  onChange={(e) =>
+                    handleChange(field.id, e.target.value)
+                  }
+                >
+                  {field.options.map((option, index) => (
+                    <MenuItem key={index} value={option}>
+                      {option}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
+              {field.type === 'checkbox' && (
+                <FormLabel
+                  component="legend"
+                  sx={{
+                    marginTop: 2,
+                    marginBottom: 2,
+                  }}
+                >
+                  {field.label}
+                  <FormGroup
+                    sx={{ border: 1, borderRadius: 1, padding: 1 }}
+                  >
+                    {field.options.map((option, index) => (
+                      <div key={index}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={
+                                formData[field.id]?.[option] || false
+                              }
+                              onChange={(e) =>
+                                handleChange(field.id, {
+                                  ...formData[field.id],
+                                  [option]: e.target.checked,
+                                })
+                              }
+                            />
+                          }
+                          label={option}
+                        />
+                      </div>
+                    ))}
+                  </FormGroup>
+                </FormLabel>
+              )}
+              {field.type === 'yesno' && (
+                <FormGroup
+                  sx={{
+                    marginTop: 2,
+                    marginBottom: 2,
+                  }}
+                >
+                  <FormLabel>{field.label}</FormLabel>
+                  <RadioGroup
+                    defaultValue=""
+                    name={field.id}
+                    value={formData[field.id] || ''}
+                    onChange={(e) =>
+                      handleChange(field.id, e.target.value)
+                    }
+                  >
+                    <FormControlLabel
+                      value="yes"
+                      control={<Radio />}
+                      label="Yes"
+                    />
+                    <FormControlLabel
+                      value="no"
+                      control={<Radio />}
+                      label="No"
+                    />
+                  </RadioGroup>
+                </FormGroup>
+              )}
+            </FormGroup>
+          ))}
+          <Button variant="contained" type="submit" color="success">
+            Submit
+          </Button>
+        </FormControl>
+      </form>
+    </Box>
   );
 };
 
