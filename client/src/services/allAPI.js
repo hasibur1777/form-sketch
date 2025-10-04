@@ -18,6 +18,7 @@ API.interceptors.request.use((config) => {
 // auth
 export const register = (formData) => API.post('/register', formData);
 export const login = (formData) => API.post('/login', formData);
+export const getUserProfile = () => API.get('/profile');
 
 // templates
 export const createTemplate = (template) =>
@@ -25,6 +26,9 @@ export const createTemplate = (template) =>
 export const fetchAllTemplates = () => API.get('/template/all');
 export const fetchTemplateById = (templateId) =>
   API.get(`/template/${templateId}`);
+export const shareFormTemplate = (templateId, userEmails) =>
+  API.post(`/templates/${templateId}/share`, { userEmails });
+export const fetchSharedWithMe = () => API.get('/shared-with-me');
 
 // responses
 export const submitResponse = (response) =>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   fetchTemplateById,
   submitResponse,
@@ -20,16 +20,38 @@ import {
 
 const FillupTemplate = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [template, setTemplate] = useState(null);
   const [formData, setFormData] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [submitLoading, setSubmitLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     fetchTemplateById(id)
       .then((res) => {
+        if (!res.data.structure || !res.data.structure.fields) {
+          throw new Error('Invalid template structure');
+        }
         setTemplate(res.data);
+        setError(null);
       })
       .catch((error) => {
         console.error('Error fetching template:', error);
+        if (error.response?.status === 403) {
+          setError('You do not have access to this form');
+        } else if (error.response?.status === 404) {
+          setError('Form not found');
+        } else {
+          setError(
+            error.message ||
+              'An error occurred while loading the form'
+          );
+        }
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, [id]);
 
@@ -39,15 +61,21 @@ const FillupTemplate = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitLoading(true);
     try {
       await submitResponse({
         template_id: id,
         response_data: formData,
+        q_structure: template.structure,
       });
-      alert('Form submitted successfully!');
-      setFormData({});
+      setError(null);
+      navigate('/home');
     } catch (error) {
-      alert('Error submitting form');
+      setError(
+        error.response?.data?.error || 'Error submitting form'
+      );
+    } finally {
+      setSubmitLoading(false);
       console.error(error);
     }
   };

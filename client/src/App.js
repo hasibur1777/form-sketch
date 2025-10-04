@@ -9,6 +9,7 @@ import Profile from './pages/Profile';
 import CreateTemplate from './components/CreateTemplate';
 import FillupTemplate from './components/FillupTemplate';
 import ViewResponses from './components/ViewResponses';
+import ShareForm from './pages/ShareForm';
 
 const ProtectedRoute = ({ element, redirectTo }) => {
   const token = localStorage.getItem('token');
@@ -83,6 +84,15 @@ const App = () => {
           }
         />
 
+        <Route
+          path="/template/:id/share"
+          element={
+            <ProtectedRoute
+              element={<ShareForm />}
+              redirectTo="/login"
+            />
+          }
+        />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>
