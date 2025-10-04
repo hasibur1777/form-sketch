@@ -1,7 +1,7 @@
 const express = require('express');
 const { userAuthenticate } = require('../middlewares/userMiddleware');
 const {
-  getTemplates,
+  getTemplate,
   createTemplate,
   getAllTemplates,
   getTemplateResponses,
@@ -11,10 +11,9 @@ const router = express.Router();
 
 router.post('/', userAuthenticate, createTemplate);
 router.get('/all', userAuthenticate, getAllTemplates);
-router.get('/:templateID', userAuthenticate, getTemplates);
-
+router.get('/:templateId', userAuthenticate, getTemplate);
 router.get(
-  '/:templateID/responses',
+  '/:templateId/responses',
   userAuthenticate,
   getTemplateResponses
 );

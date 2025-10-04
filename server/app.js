@@ -8,6 +8,7 @@ dotenv.config();
 const userRoutes = require('./routes/userRoutes');
 const templateResponseRoutes = require('./routes/templateRoutes');
 const userResponseRoutes = require('./routes/responseRoutes');
+const shareRoutes = require('./routes/shareRoutes');
 
 const app = express();
 app.use(cors());
@@ -17,6 +18,7 @@ app.use(bodyParser.json());
 app.use('/', userRoutes);
 app.use('/template', templateResponseRoutes);
 app.use('/response', userResponseRoutes);
+app.use('/', shareRoutes);
 
 // HANDLE INVALID REQUESTS
 app.get('/*', (req, res) => {

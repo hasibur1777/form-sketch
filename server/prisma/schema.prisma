@@ -1,45 +1,62 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-
 model User {
-  id       Int      @id @default(autoincrement())
-  name     String   @db.VarChar(255)
-  email    String   @unique
-  password String
-  role     String   @default("user")
-  createdAt DateTime @default(now())
-}
+  id        String          @id @default(uuid()) @db.Uuid
+  name      String
+  email     String          @unique
+  password  String
+  role      String          @default("user")
+  createdAt DateTime        @default(now())
 
+  // Relations
+  templates FormTemplates[] // a user can create many form templates
+  responses FormResponses[] // a user can submit many responses
+  sharedForms FormSharing[] // forms shared with this user
+}
 
 model FormTemplates {
-  id              Int      @id @default(autoincrement())
-  name            String   @db.VarChar(255)
-  structure     Json   @default("{}")
-  createdBy       Int
-  updatedAt       DateTime @default(now())
-  createdAt       DateTime @default(now())
+  id         String          @id @default(uuid()) @db.Uuid
+  name       String
+  structure  Json            @default("{}")
+  createdBy  String          @db.Uuid
+  updatedAt  DateTime        @default(now())
+  createdAt  DateTime        @default(now())
+
+  // Relations
+  creator    User            @relation(fields: [createdBy], references: [id])
+  responses  FormResponses[] // a template can have many responses
+  formSharing FormSharing[] // relation to form sharing
 }
 
-
 model FormResponses {
-  id              Int      @id @default(autoincrement())
-  template_id     Int
-  response_data     Json   @default("{}")
-  q_structure     Json   @default("{}")
-  createdBy       Int
-  updatedAt       DateTime @default(now())
-  createdAt       DateTime @default(now())
+  id            String        @id @default(uuid()) @db.Uuid
+  template_id   String        @db.Uuid
+  response_data Json          @default("{}")
+  q_structure   Json          @default("{}")
+  createdBy     String        @db.Uuid
+  updatedAt     DateTime      @default(now())
+  createdAt     DateTime      @default(now())
+
+  // Relations
+  template      FormTemplates @relation(fields: [template_id], references: [id])
+  creator       User          @relation(fields: [createdBy], references: [id])
+}
+
+model FormSharing {
+  id               String       @id @default(uuid()) @db.Uuid
+  templateId       String       @db.Uuid
+  sharedWithUserId String       @db.Uuid
+  createdAt        DateTime     @default(now())
+
+  // Relations
+  template         FormTemplates @relation(fields: [templateId], references: [id])
+  sharedWith       User         @relation(fields: [sharedWithUserId], references: [id])
 }

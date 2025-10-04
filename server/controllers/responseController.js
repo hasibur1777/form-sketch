@@ -4,7 +4,7 @@ const { body, validationResult } = require('express-validator');
 
 const createResponse = async (req, res) => {
   const user = req.user.id;
-  await body('template_id').isInt().run(req);
+  await body('template_id').run(req);
   await body('response_data')
     .custom((value) => {
       if (typeof value !== 'object' || Array.isArray(value)) {
@@ -23,7 +23,7 @@ const createResponse = async (req, res) => {
 
   try {
     const template = await prisma.formTemplates.findUnique({
-      where: { id: parseInt(template_id) },
+      where: { id: template_id },
     });
 
     if (!template) {
@@ -32,7 +32,7 @@ const createResponse = async (req, res) => {
 
     const response = await prisma.formResponses.create({
       data: {
-        template_id: parseInt(template_id),
+        template_id: template_id,
         response_data: response_data,
         q_structure: template.structure,
         createdBy: user,
@@ -50,7 +50,7 @@ const getResponse = async (req, res) => {
 
   try {
     const response = await prisma.formResponses.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
     });
 
     if (!response) {

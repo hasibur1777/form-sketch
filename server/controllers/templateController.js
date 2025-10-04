@@ -50,47 +50,68 @@ const createTemplate = async (req, res) => {
 };
 
 const getAllTemplates = async (req, res) => {
+  const userId = req.user.id;
   try {
-    const templates = await prisma.formTemplates.findMany();
-    res.status(200).json(templates);
+    // Get templates created by user
+    const templates = await prisma.formTemplates.findMany({
+      where: {
+        createdBy: userId,
+      },
+    });
+
+    res.status(200).json({
+      owned: templates,
+      shared: [], // Will be implemented when sharing is set up
+    });
   } catch (error) {
+    console.error('Error fetching templates:', error);
     res.status(500).json({ error: 'Failed to fetch templates' });
   }
 };
 
 const getTemplates = async (req, res) => {
-  const { templateID } = req.params;
-  const id = parseInt(templateID);
-  if (isNaN(id)) {
-    return res
-      .status(400)
-      .json({ error: 'Template ID must be a number' });
-  }
+  const { templateId } = req.params;
+  const userId = req.user.id;
+  const id = templateId;
+
   try {
+    // Find template and check access
     const template = await prisma.formTemplates.findUnique({
       where: { id },
+      include: {
+        creator: true,
+        formSharing: {
+          where: {
+            sharedWithUserId: userId,
+          },
+        },
+      },
     });
 
     if (!template) {
       return res.status(404).json({ error: 'Template not found' });
     }
+
+    // Check if user has access (creator or shared)
+    if (
+      template.createdBy !== userId &&
+      template.formSharing.length === 0
+    ) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
     res.status(200).json(template);
   } catch (error) {
-    res
-      .status(500)
-      .json({ error: 'Failed to fetch template', message: error });
+    res.status(500).json({
+      error: 'Failed to fetch template',
+      message: error.message,
+    });
   }
 };
 
 const getTemplateResponsesxx = async (req, res) => {
   const { templateID } = req.params;
-  const id = parseInt(templateID);
-
-  if (isNaN(id)) {
-    return res
-      .status(400)
-      .json({ error: 'Template ID must be a number' });
-  }
+  const id = templateID;
 
   try {
     const template = await prisma.formTemplates.findUnique({
@@ -169,14 +190,8 @@ const getTemplateResponsesxx = async (req, res) => {
 };
 
 const getTemplateResponses = async (req, res) => {
-  const { templateID } = req.params;
-  const id = Number(templateID);
-
-  if (isNaN(id)) {
-    return res
-      .status(400)
-      .json({ error: 'Template ID must be a number' });
-  }
+  const { templateId } = req.params;
+  const id = templateId;
 
   try {
     const template = await prisma.formTemplates.findUnique({
@@ -244,12 +259,10 @@ const getTemplateResponses = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({
-        error: 'Failed to fetch responses',
-        message: error.message,
-      });
+    res.status(500).json({
+      error: 'Failed to fetch responses',
+      message: error.message,
+    });
   }
 };
 
@@ -258,4 +271,5 @@ module.exports = {
   getTemplates,
   getAllTemplates,
   getTemplateResponses,
+  getTemplate: getTemplates, // alias for route consistency
 };
